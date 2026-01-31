@@ -1,6 +1,59 @@
 #include "Arduino.h"
 #include <array>
 
+class MotorController {
+  private:
+    int m1p1;
+    int m1p2;
+    int m2p1;
+    int m2p2;
+
+    MotorController() {
+      pinMode(m1p1, OUTPUT);
+      pinMode(m1p2, OUTPUT);
+      pinMode(m2p1,  OUTPUT);
+      pinMode(m2p2, OUTPUT);
+
+      m1p1 = 0;
+      m1p2 = 1;
+      m2p1 = 2;
+      m2p2 = 3;
+    }
+
+  public:
+    moveForward() {
+      digitalWrite(m1p1, HIGH);
+      digitalWrite(m1p2, LOW);
+
+      digitalWrite(m2p1, HIGH);
+      digitalWrite(m2p2, LOW);
+
+      delay(300);
+      moveForward();
+    }
+
+    turnRight() {
+      digitalWrite(m1p1, LOW);
+      digitalWrite(m1p2, LOW);
+
+      digitalWrite(m2p1, HIGH);
+      digitalWrite(m2p2, LOW);
+      delay(300);
+    }
+
+    turnLeft() {
+      digitalWrite(motor1pin, HIGH);
+      digitalWrite(motor1pin, LOW);
+
+      digitalWrite(motor2pin1,LOW);
+      digitalWrite(motor2pin2,LOW)
+      delay(300);
+    }
+
+
+
+}
+
 class ColourSensor {
   private:
     int S0;
