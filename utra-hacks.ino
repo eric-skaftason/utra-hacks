@@ -44,30 +44,23 @@ class ColourSensor {
     }
 
     std::array<float, 3> getColourData() {
-      // Get Red
-      digitalWrite(this->S2, LOW);
-      digitalWrite(this->S3, LOW);
 
-      // freq is inverse of period or 1 / (duration of low + duration of high)
-      // uses 1 million to convert from microseconds to seconds
-      float redPeriod = pulseIn(OUT, LOW) + pulseIn(OUT, HIGH);
-      float redFreq = 1000000.0 / redPeriod; // frequency in Hz
+      digitalWrite(s2, LOW);
+      digitalWrite(s3, LOW);
+      r = pulseIn(outPin, LOW); // Reading RED component of color
+    
+      digitalWrite(s2, HIGH);
+      digitalWrite(s3, HIGH);
+      g = pulseIn(outPin, LOW); // Reading GREEN component of color
+      
+      digitalWrite(s2, LOW);
+      digitalWrite(s3, HIGH);
+      b = pulseIn(outPin, LOW); // Reading BLUE component of color
+      
 
-      // Get Green
-      digitalWrite(this->S2, LOW);
-      digitalWrite(this->S3, HIGH);
-      float greenPeriod = pulseIn(OUT, LOW) + pulseIn(OUT, HIGH);
-      float greenFreq = 1000000.0 / greenPeriod;
-
-
-      // Get Blue
-      digitalWrite(this->S2, HIGH);
-      digitalWrite(this->S3, HIGH);
-      float bluePeriod = pulseIn(OUT, LOW) + pulseIn(OUT, HIGH);
-      float blueFreq = 1000000.0 / bluePeriod;
-
-      return {redFreq, greenFreq, blueFreq};
+      return {r, g, b};
     }
+
 
 };
 
@@ -83,6 +76,18 @@ void loop() {
   Serial.print("Red: ");   Serial.print(r);
   Serial.print(" Green: "); Serial.print(g);
   Serial.print(" Blue: ");  Serial.println(b);
+
+  char max_channel;
+  if (r > g && r > b) {
+      max_channel = 'r';
+  } else if (g > r && g > b) {
+      max_channel = 'g';
+  } else {
+      max_channel = 'b';
+  }
+
+
+  Serial.print( "max: "); Serial.println( max_channel);
 
   delay(500);
 }
