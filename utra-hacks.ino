@@ -43,39 +43,44 @@ class ColourSensor {
         init();
     }
 
-    std::array<float, 3> getColourData() {
+    std::array<int, 4> getColourData() {
 
-      digitalWrite(s2, LOW);
-      digitalWrite(s3, LOW);
-      r = pulseIn(outPin, LOW); // Reading RED component of color
+      digitalWrite(S2, LOW);
+      digitalWrite(S3, LOW);
+      int r = pulseIn(OUT, LOW); // Reading RED component of color
     
-      digitalWrite(s2, HIGH);
-      digitalWrite(s3, HIGH);
-      g = pulseIn(outPin, LOW); // Reading GREEN component of color
+      digitalWrite(S2, HIGH);
+      digitalWrite(S3, HIGH);
+      int g = pulseIn(OUT, LOW); // Reading GREEN component of color
       
-      digitalWrite(s2, LOW);
-      digitalWrite(s3, HIGH);
-      b = pulseIn(outPin, LOW); // Reading BLUE component of color
-      
+      digitalWrite(S2, LOW);
+      digitalWrite(S3, HIGH);
+      int b = pulseIn(OUT, LOW); // Reading BLUE component of color
 
-      return {r, g, b};
+      digitalWrite(S2, HIGH);
+      digitalWrite(S3, LOW);
+      int a = pulseIn(OUT, LOW);
+      
+      return {r, g, b, a};
     }
 
 
 };
 
 ColourSensor sensor;
+int last_luminance = 0;
 
 void setup() {
   Serial.begin(9600);
 }
 
 void loop() {
-  auto [r, g, b] = sensor.getColourData();
+  auto [r, g, b, a] = sensor.getColourData();
 
   Serial.print("Red: ");   Serial.print(r);
   Serial.print(" Green: "); Serial.print(g);
   Serial.print(" Blue: ");  Serial.println(b);
+  Serial.print(" Luminance: ");  Serial.println(a);
 
   char max_channel;
   if (r > g && r > b) {
@@ -87,7 +92,11 @@ void loop() {
   }
 
 
-  Serial.print( "max: "); Serial.println( max_channel);
+  // Print change in luminance
+  Serial.print( "max: "); Serial.println( last_luminance - a);
+  // Serial.print( "max: "); Serial.println( max_channel);
+
+  last_luminance = a;
 
   delay(500);
 }
