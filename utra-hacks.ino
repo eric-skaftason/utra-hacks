@@ -68,35 +68,70 @@ class ColourSensor {
 };
 
 ColourSensor sensor;
-int last_luminance = 0;
+int prev_rgba[4] = {0, 0, 0, 0};
 
 void setup() {
   Serial.begin(9600);
+
+  // Table head
+  Serial.println(F("  ΔR |  ΔG |  ΔB |  ΔA"));
+  Serial.println(F("----------------------"));
+}
+
+void printCell(int value) {
+  if (value >= 0) Serial.print(" ");
+  if (abs(value) < 10)  Serial.print(" ");
+  if (abs(value) < 100) Serial.print(" ");
+  Serial.print(value);
 }
 
 void loop() {
-  auto [r, g, b, a] = sensor.getColourData();
+  auto data = sensor.getColourData();
 
-  Serial.print("Red: ");   Serial.print(r);
-  Serial.print(" Green: "); Serial.print(g);
-  Serial.print(" Blue: ");  Serial.println(b);
-  Serial.print(" Luminance: ");  Serial.println(a);
+  int r = data[0] / 10;
+  int g = data[1] / 10;
+  int b = data[2] / 10;
+  int a = data[3] / 10;
 
-  char max_channel;
-  if (r > g && r > b) {
-      max_channel = 'r';
-  } else if (g > r && g > b) {
-      max_channel = 'g';
+  // Serial.print("R: "); Serial.print(r);
+  // Serial.print(" G: "); Serial.print(g);
+  // Serial.print(" B: "); Serial.print(b);
+  // Serial.print(" A: "); Serial.println(a);
+
+  int deltaR = r - prev_rgba[0];
+  int deltaG = g - prev_rgba[1];
+  int deltaB = b - prev_rgba[2];
+  int deltaA = a - prev_rgba[3];
+
+  char maxColour;   // 'R', 'G', or 'B'
+
+  if (r < g && r < b) {
+    maxColour = 'R';
+  } else if (g < r && g < b) {
+    maxColour = 'G';
+  } else if (b < r && b < g) {
+    maxColour = 'B';
   } else {
-      max_channel = 'b';
+    maxColour = 'U'; // unknown / tie
   }
 
 
-  // Print change in luminance
-  Serial.print( "max: "); Serial.println( last_luminance - a);
-  // Serial.print( "max: "); Serial.println( max_channel);
+  printCell(r); Serial.print(" | ");
+  printCell(g); Serial.print(" | ");
+  printCell(b); Serial.print(" | ");
+  printCell(a); Serial.print(" | ");
+  Serial.println(maxColour);
 
-  last_luminance = a;
+  // printCell(deltaR); Serial.print(" | ");
+  // printCell(deltaG); Serial.print(" | ");
+  // printCell(deltaB); Serial.print(" | ");
+  // printCell(deltaA); Serial.println();
+
+
+  prev_rgba[0] = r;
+  prev_rgba[1] = g;
+  prev_rgba[2] = b;
+  prev_rgba[3] = a;
 
   delay(500);
 }
