@@ -187,7 +187,43 @@ class IRSensor {
 
   public:
     IRSensor() {
+      pin = p;
+
+      pinMode(pin, INPUT);
     }
+
+    bool wallDetected() {
+      // digitalWrite(pin, HIGH);  
+      // delayMicroseconds(500);  
+      // int a = analogRead(pin);
+
+      // digitalWrite(pin, LOW);  
+      // delayMicroseconds(500);  
+      // int b = analogRead(pin);
+
+
+      // int c = a - b;
+
+      // Serial.print(a);
+      // Serial.print(' ');
+      // Serial.print(b);
+      // Serial.print(' ');
+      // Serial.println(c);
+
+      int sensorValue = digitalRead(pin);
+
+      if (sensorValue == LOW) {  // Object detected
+        Serial.println("Object detected");
+        return true;
+      } else {                   // No object
+        Serial.println("No object");
+        return false;
+      }
+      
+
+      return true;
+    }
+
 };
 
 class CourseCorrection {
