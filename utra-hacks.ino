@@ -182,17 +182,53 @@ class UltrasonicSensor {
 
 class IRSensor {
   private:
-    
+    int pin;
 
   public:
-    IRSensor() {
+    IRSensor(int p) {
+      pin = p;
 
+      pinMode(pin, INPUT);
     }
+
+    bool wallDetected() {
+      // digitalWrite(pin, HIGH);  
+      // delayMicroseconds(500);  
+      // int a = analogRead(pin);
+
+      // digitalWrite(pin, LOW);  
+      // delayMicroseconds(500);  
+      // int b = analogRead(pin);
+
+
+      // int c = a - b;
+
+      // Serial.print(a);
+      // Serial.print(' ');
+      // Serial.print(b);
+      // Serial.print(' ');
+      // Serial.println(c);
+
+      int sensorValue = digitalRead(pin);
+
+      if (sensorValue == LOW) {  // Object detected
+        Serial.println("Object detected");
+        return true;
+      } else {                   // No object
+        Serial.println("No object");
+        return false;
+      }
+      
+
+      return true;
+    }
+
 };
 
 ColourSensor sensor;
 MotorController motor_controller;
 UltrasonicSensor ultrasonic_sensor;
+IRSensor ir_sensor = IRSensor(5);
 int prev_rgba[4] = {0, 0, 0, 0};
 
 void setup() {
@@ -230,16 +266,6 @@ void loop() {
 
   char maxColour;   // 'R', 'G', or 'B'
 
-  if (r < g && r < b) {
-    maxColour = 'R';
-  } else if (g < r && g < b) {
-    maxColour = 'G';
-  } else if (b < r && b < g) {
-    maxColour = 'B';
-  } else {
-    maxColour = 'U'; // unknown / tie
-  }
-
   maxColour = sensor.getColour(40);
 
 
@@ -257,8 +283,11 @@ void loop() {
   // motor_controller.moveForward();
 
 
-  long dist = ultrasonic_sensor.getDist();
-  Serial.print(dist); Serial.println(" cm");
+  // long dist = ultrasonic_sensor.getDist();
+  // Serial.print(dist); Serial.println(" cm");
+
+
+  bool wall_detected = ir_sensor.wallDetected();
 
   prev_rgba[0] = r;
   prev_rgba[1] = g;
