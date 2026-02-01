@@ -206,8 +206,6 @@ class UltrasonicSensor {
 
 class IRSensor {
   private:
-    int pin;
-
   public:
     IRSensor() {
       pin = 13;
@@ -228,12 +226,22 @@ class IRSensor {
 };
 /*
 class CourseCorrection {
+  private:
   public:
-    // char primary_color = sensor.getColourData(40);
-    bool colourDetected = false;
-    double angle = 0;
+  char maxColour;
+  bool colourDetected;
+  double angle;
+  ColorSensor sensor;
+  MotorController motorController;
 
-  void backtracking(char colour) {
+  CourseCorrection(ColorSensor sensor, MotorController motorController){
+    //init fields
+    this.sensor = sensor;
+    colourDetected = false;
+    angle = 0;
+
+  }
+  void Backtracking(char colour) {
     //turn left little increment
     while(angle <= 90 && !colourDetected){
       motor_controller.turnLeft();
@@ -263,7 +271,90 @@ class CourseCorrection {
     }
   }
 }
-*/
+
+class Orientation{
+  private:
+  public:
+  long curDist;
+  long prevDist;
+  long startDist;
+  UltrasonicSensor sensor;
+
+  Orientation(UltrasonicSensor sensor){
+    this.sensor = sensor;
+  }
+  bool isInc(long curDist){
+    prevDist = curDist
+    curDist = UltrasonicSensor.getDist();
+    return curDist < prevDist;
+  }
+
+  void fix(){
+    //get current distance
+    startDist = UltrasonicSensor.getDist();
+    //try turning left a little bit and see if the distance increased
+    MotorController.turnLeft();
+    delay(100);
+    
+    //increasing left
+    if(isInc(startDist)){
+      MotorController.turnRight();
+      delay(200);
+      //compare with starting distance
+      if(isInc(startDist)){
+        return;
+      }else{
+        //turn until values start increasing again
+        while(!isInc(curDist)){
+          MotorController.turnRight();
+          delay(100);
+        }
+        //loop broke due to increasing trend in latest comparison
+        //so turn a bit back
+        MotorController.turnLeft();
+        delay(100);
+      }
+    }
+
+    //decreasing left
+    else{
+      //turn until values start increasing again
+      while(!isInc(curDist)){
+        MotorController.turnLeft();
+        delay(100);
+      }
+      //loop broke due to increasing trend in latest comparison
+      //so turn a bit back
+      MotorController.turnRight();
+      delay(100);
+    }
+  }
+}
+
+class pushObject{
+  private:
+  public:
+  ColorSensor sensor;
+  MotorController motorController;
+  pushObject(ColorSensor sensor, MotorController motorController){
+    this.sensor = sensor;
+    this.motorController = motorController;
+  }
+  void pushBall(){
+    //assumption: alr aligned with wall
+    //go forward until reaches blue
+    maxColour = sensor.getColour(40);
+    while(maxColour != 'B'){
+      motorController.moveForward();
+    }
+  }
+  void pushBoxHorizontally(){
+    motorController.turnLeft();
+    delay(500);
+    motorController.turnRight();
+    delay(500);
+  }
+}
 
 ColourSensor sensor;
 MotorController motor_controller;
@@ -317,9 +408,16 @@ void loop() {
   // int deltaA = a - prev_rgba[3];
 
   char maxColour;   // 'R', 'G', or 'B'
-
+  if (r < g && r < b) {
+    maxColour = 'R';
+  } else if (g < r && g < b) {
+    maxColour = 'G';
+  } else if (b < r && b < g) {
+    maxColour = 'B';
+  } else {
+    maxColour = 'U'; // unknown / tie
+  }
   maxColour = sensor.getColour(40);
-
 
   // printCell(r); Serial.print(" | ");
   // printCell(g); Serial.print(" | ");
