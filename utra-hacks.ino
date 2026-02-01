@@ -332,7 +332,8 @@ void loop() {
   // printCell(deltaB); Serial.print(" | ");
   // printCell(deltaA); Serial.println();
 
-  motor_controller.moveForward(80, 90);
+  // motor_controller.moveForward(80, 90);
+  motor_controller.turnRight();
 
   // long dist = ultrasonic_sensor.getDist();
   // Serial.print(dist); Serial.println(" cm");
