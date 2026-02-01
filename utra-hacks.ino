@@ -8,6 +8,8 @@ class MotorController {
     int m1p2;
     int m2p1;
     int m2p2;
+    int ENA;
+    int ENB;
 
   public:
     MotorController() {
@@ -16,20 +18,39 @@ class MotorController {
       m2p1 = 4;
       m2p2 = 5;
 
+      ENA = 0;
+      ENB = 1;
+
       pinMode(m1p1, OUTPUT);
       pinMode(m1p2, OUTPUT);
       pinMode(m2p1, OUTPUT);
       pinMode(m2p2, OUTPUT);
+
+      pinMode(ENA, OUTPUT);
+      pinMode(ENB, OUTPUT);
     }
 
-    void moveForward() {
+    void moveForward(int speedR, int speedL) {
+      // Right
       digitalWrite(m1p1, LOW);
       digitalWrite(m1p2, HIGH);
 
+      analogWrite(ENA, speedR);
+
+      // Left
       digitalWrite(m2p1, HIGH);
       digitalWrite(m2p2, LOW);
 
+      analogWrite(ENB, speedL);
 
+    }
+
+    void stop() {
+      digitalWrite(m1p1, LOW);
+      digitalWrite(m1p2, LOW);
+
+      digitalWrite(m2p1, LOW);
+      digitalWrite(m2p2, LOW);
     }
 
     void turnRight() {
@@ -250,9 +271,11 @@ UltrasonicSensor ultrasonic_sensor;
 IRSensor ir_sensor;
 int prev_rgba[4] = {0, 0, 0, 0};
 
+int iteration = 0;
+int max_iterations = 10;
+
 void setup() {
   Serial.begin(9600);
-
   // Table head
   Serial.println(F("  ΔR |  ΔG |  ΔB |  ΔA"));
   Serial.println(F("----------------------"));
@@ -270,6 +293,12 @@ void writeToMap(){
 }
 
 void loop() {
+  if (iteration >= max_iterations) {
+    while (true) {
+      motor_controller.stop();
+      return;
+    }
+  };
   auto data = sensor.getColourData();
 
   int r = data[0] / 1;
@@ -303,7 +332,7 @@ void loop() {
   // printCell(deltaB); Serial.print(" | ");
   // printCell(deltaA); Serial.println();
 
-  motor_controller.turnRight();
+  motor_controller.moveForward(80, 90);
 
   // long dist = ultrasonic_sensor.getDist();
   // Serial.print(dist); Serial.println(" cm");
@@ -317,5 +346,7 @@ void loop() {
   prev_rgba[2] = b;
   prev_rgba[3] = a;
 
-  delay(100);
+  iteration++;
+
+  delay(1000);
 }
