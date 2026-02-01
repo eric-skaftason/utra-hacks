@@ -11,14 +11,14 @@ class MotorController {
 
   public:
     MotorController() {
-      m1p1 = 1;
-      m1p2 = 2;
-      m2p1 = 3;
-      m2p2 = 4;
+      m1p1 = 2;
+      m1p2 = 3;
+      m2p1 = 4;
+      m2p2 = 5;
 
       pinMode(m1p1, OUTPUT);
       pinMode(m1p2, OUTPUT);
-      pinMode(m2p1,  OUTPUT);
+      pinMode(m2p1, OUTPUT);
       pinMode(m2p2, OUTPUT);
     }
 
@@ -26,25 +26,27 @@ class MotorController {
       digitalWrite(m1p1, LOW);
       digitalWrite(m1p2, HIGH);
 
-      // digitalWrite(m2p1, HIGH);
-      // digitalWrite(m2p2, LOW);
+      digitalWrite(m2p1, HIGH);
+      digitalWrite(m2p2, LOW);
+
+
     }
 
     void turnRight() {
       digitalWrite(m1p1, LOW);
-      digitalWrite(m1p2, LOW);
+      digitalWrite(m1p2, HIGH);
 
-      digitalWrite(m2p1, HIGH);
-      digitalWrite(m2p2, LOW);
-      // delay(300);
+      digitalWrite(m2p1, LOW);
+      digitalWrite(m2p2, HIGH);
+
     }
 
     void turnLeft() {
       digitalWrite(m1p1, HIGH);
       digitalWrite(m1p2, LOW);
 
-      digitalWrite(m2p1,LOW);
-      digitalWrite(m2p2,LOW);
+      digitalWrite(m2p1, HIGH);
+      digitalWrite(m2p2, LOW);
       // delay(300);
     }
     void backwards() {
@@ -186,62 +188,39 @@ class IRSensor {
     int pin;
 
   public:
-    IRSensor(int p) {
-      pin = p;
+    IRSensor() {
+      pin = 13;
 
       pinMode(pin, INPUT);
     }
 
     bool wallDetected() {
-      // digitalWrite(pin, HIGH);  
-      // delayMicroseconds(500);  
-      // int a = analogRead(pin);
-
-      // digitalWrite(pin, LOW);  
-      // delayMicroseconds(500);  
-      // int b = analogRead(pin);
-
-
-      // int c = a - b;
-
-      // Serial.print(a);
-      // Serial.print(' ');
-      // Serial.print(b);
-      // Serial.print(' ');
-      // Serial.println(c);
-
       int sensorValue = digitalRead(pin);
 
-      if (sensorValue == LOW) {  // Object detected
-        Serial.println("Object detected");
+      if (sensorValue == LOW) {
         return true;
-      } else {                   // No object
-        Serial.println("No object");
+      } else {
         return false;
       }
-      
-
-      return true;
     }
 
 };
-
+/*
 class CourseCorrection {
   public:
-  char primary_color;
-  bool colourDetected = false;
-  double angle = 0;
-  primary_color = sensor.getColourData(40);
+    // char primary_color = sensor.getColourData(40);
+    bool colourDetected = false;
+    double angle = 0;
 
-  void Backtracking(char colour) {
+  void backtracking(char colour) {
     //turn left little increment
     while(angle <= 90 && !colourDetected){
-      MotorController.turnLeft();
+      motor_controller.turnLeft();
       delay(100);
       angle += 18;
       maxColour = sensor.getColour(40);
       if(maxColour == colour){
-        MotorController.moveForward();
+        motor_controller.moveForward();
         return;
       }
     }
@@ -263,11 +242,12 @@ class CourseCorrection {
     }
   }
 }
+*/
 
 ColourSensor sensor;
 MotorController motor_controller;
 UltrasonicSensor ultrasonic_sensor;
-IRSensor ir_sensor = IRSensor(5);
+IRSensor ir_sensor;
 int prev_rgba[4] = {0, 0, 0, 0};
 
 void setup() {
@@ -302,10 +282,10 @@ void loop() {
   // Serial.print(" B: "); Serial.print(b);
   // Serial.print(" A: "); Serial.println(a);
 
-  int deltaR = r - prev_rgba[0];
-  int deltaG = g - prev_rgba[1];
-  int deltaB = b - prev_rgba[2];
-  int deltaA = a - prev_rgba[3];
+  // int deltaR = r - prev_rgba[0];
+  // int deltaG = g - prev_rgba[1];
+  // int deltaB = b - prev_rgba[2];
+  // int deltaA = a - prev_rgba[3];
 
   char maxColour;   // 'R', 'G', or 'B'
 
@@ -323,19 +303,19 @@ void loop() {
   // printCell(deltaB); Serial.print(" | ");
   // printCell(deltaA); Serial.println();
 
-  // motor_controller.moveForward();
-
+  motor_controller.turnRight();
 
   // long dist = ultrasonic_sensor.getDist();
   // Serial.print(dist); Serial.println(" cm");
 
 
-  bool wall_detected = ir_sensor.wallDetected();
+  // bool wall_detected = ir_sensor.wallDetected();
+  // Serial.print("Wall detected? "); Serial.println(wall_detected);
 
   prev_rgba[0] = r;
   prev_rgba[1] = g;
   prev_rgba[2] = b;
   prev_rgba[3] = a;
 
-  delay(300);
+  delay(100);
 }
