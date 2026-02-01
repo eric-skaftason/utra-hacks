@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include <array>
+#include <unordered_map>
 
 class MotorController {
   private:
@@ -46,9 +47,14 @@ class MotorController {
       digitalWrite(m2p2,LOW);
       // delay(300);
     }
+    void backwards() {
 
+      digitalWrite(m1p1, HIGH);
+      digitalWrite(m1p2, LOW);
 
-
+      digitalWrite(m2p1, HIGH);
+      digitalWrite(m2p2, LOW);
+    }
 };
 
 class ColourSensor {
@@ -74,8 +80,6 @@ class ColourSensor {
     int percentDiff(int a, int b) {
       return int((float)abs(a - b) / ((a + b) / 2.0) * 100);
   }
-
-
 
   public:
     ColourSensor(int s0, int s1, int s2, int s3, int out) {
@@ -143,9 +147,6 @@ class ColourSensor {
       return 'U';
   }
 
-
-
-
 };
 
 class UltrasonicSensor {
@@ -185,6 +186,48 @@ class IRSensor {
     int pin;
 
   public:
+    IRSensor() {
+    }
+};
+
+class CourseCorrection {
+  public:
+  char primary_color;
+  bool colourDetected = false;
+  double angle = 0;
+  primary_color = sensor.getColourData(40);
+
+  void Backtracking(char colour) {
+    //turn left little increment
+    while(angle <= 90 && !colourDetected){
+      MotorController.turnLeft();
+      delay(100);
+      angle += 18;
+      maxColour = sensor.getColour(40);
+      if(maxColour == colour){
+        MotorController.moveForward();
+        return;
+      }
+    }
+
+    //turn right little increment
+    //turn back
+    MotorController.turnRight();
+    delay(500);
+    angle = 0;
+    while(angle <= 90 && !colourDetected){
+      MotorController.turnRight();
+      delay(100);
+      angle += 18;
+      maxColour = sensor.getColour(40);
+      if(maxColour == colour){
+        MotorController.moveForward();
+        return;
+      }
+    }
+  }
+}
+
     IRSensor(int p) {
       pin = p;
 
@@ -244,6 +287,10 @@ void printCell(int value) {
   if (abs(value) < 10)  Serial.print(" ");
   if (abs(value) < 100) Serial.print(" ");
   Serial.print(value);
+}
+
+void writeToMap(){
+  std::unordered_map<int, std::string> umap = {};
 }
 
 void loop() {
