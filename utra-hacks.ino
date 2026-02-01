@@ -2,7 +2,7 @@
 #include <array>
 #include <unordered_map>
 
-class MotorController {
+class MotorController { //Established Variables and values for Motor control 
   private:
     int m1p1; // motor 1 pin 1
     int m1p2;
