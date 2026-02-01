@@ -251,6 +251,7 @@ class CourseCorrection {
         return;
       }
     }
+    correct(colour);
   }
 };
 
@@ -374,10 +375,6 @@ void printCell(int value) {
   Serial.print(value);
 }
 
-void writeToMap(){
-  std::unordered_map<int, std::string> umap = {};
-}
-
 void loop() {
   if (iteration >= max_iterations) {
     while (true) {
@@ -432,17 +429,29 @@ void loop() {
 
 
   if (fn == 0) {
-    motor_controller.moveForward(64, 74);
-    if (sensor.getColour() == 'R') {
+    motor_controller.moveForward(60, 73);
+    if (sensor.getColour() == 'R' || sensor.getColour() == 'G') {
       motor_controller.stop();
-      delay(4000);
+      delay(2000);
       //placeholder
       motor_controller.turnRight();
-      delay(700);
+      delay(800);
       motor_controller.stop();
-      
+
       motor_controller.moveForward(64, 74);
-      delay(100);
+      delay(1000);
+      //correction.correct('G');
+      /*
+      char curColour = sensor.getColour();
+      while(curColour != 'G'){
+        motor_controller.turnLeft();
+        delay(300);
+        motor_controller.stop();
+        delay(500);
+        curColour = sensor.getColour();
+      }
+      */
+
       char curColour = sensor.getColour();
       //not blue pick up
       while(curColour == 'G'){
@@ -450,6 +459,7 @@ void loop() {
           delay(200);
           curColour = sensor.getColour();
       }
+      motor_controller.stop();
       // //turn 180 
       // push.pushBoxHorizontally();
       // //go forward a bit
