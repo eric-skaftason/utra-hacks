@@ -148,8 +148,51 @@ class ColourSensor {
 
 };
 
+class UltrasonicSensor {
+  private:
+    int pinTrig;
+    int pinEcho;
+
+  public:
+    UltrasonicSensor() {
+      pinTrig = 6;
+      pinEcho = 7;
+
+      pinMode(pinTrig, OUTPUT);
+      pinMode(pinEcho, INPUT);
+    }
+
+    long getDist() {
+      long duration, cm;
+
+      digitalWrite(pinTrig, LOW);
+      delayMicroseconds(2);
+      digitalWrite(pinTrig, HIGH);
+      delayMicroseconds(10);
+      digitalWrite(pinTrig, LOW);
+
+      duration = pulseIn(pinEcho, HIGH);
+
+      // convert the microseconds to cm
+      cm = duration / 29 / 2;
+
+      return cm;
+    }
+};
+
+class IRSensor {
+  private:
+    
+
+  public:
+    IRSensor() {
+
+    }
+};
+
 ColourSensor sensor;
 MotorController motor_controller;
+UltrasonicSensor ultrasonic_sensor;
 int prev_rgba[4] = {0, 0, 0, 0};
 
 void setup() {
@@ -200,11 +243,11 @@ void loop() {
   maxColour = sensor.getColour(40);
 
 
-  printCell(r); Serial.print(" | ");
-  printCell(g); Serial.print(" | ");
-  printCell(b); Serial.print(" | ");
-  printCell(a); Serial.print(" | ");
-  Serial.println(maxColour);
+  // printCell(r); Serial.print(" | ");
+  // printCell(g); Serial.print(" | ");
+  // printCell(b); Serial.print(" | ");
+  // printCell(a); Serial.print(" | ");
+  // Serial.println(maxColour);
 
   // printCell(deltaR); Serial.print(" | ");
   // printCell(deltaG); Serial.print(" | ");
@@ -212,6 +255,10 @@ void loop() {
   // printCell(deltaA); Serial.println();
 
   // motor_controller.moveForward();
+
+
+  long dist = ultrasonic_sensor.getDist();
+  Serial.print(dist); Serial.println(" cm");
 
   prev_rgba[0] = r;
   prev_rgba[1] = g;
