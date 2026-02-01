@@ -3,56 +3,53 @@
 
 class MotorController {
   private:
-    int m1p1;
+    int m1p1; // motor 1 pin 1
     int m1p2;
     int m2p1;
     int m2p2;
 
+  public:
     MotorController() {
+      m1p1 = 1;
+      m1p2 = 2;
+      m2p1 = 3;
+      m2p2 = 4;
+
       pinMode(m1p1, OUTPUT);
       pinMode(m1p2, OUTPUT);
       pinMode(m2p1,  OUTPUT);
       pinMode(m2p2, OUTPUT);
-
-      m1p1 = 0;
-      m1p2 = 1;
-      m2p1 = 2;
-      m2p2 = 3;
     }
 
-  public:
-    moveForward() {
-      digitalWrite(m1p1, HIGH);
-      digitalWrite(m1p2, LOW);
+    void moveForward() {
+      digitalWrite(m1p1, LOW);
+      digitalWrite(m1p2, HIGH);
 
-      digitalWrite(m2p1, HIGH);
-      digitalWrite(m2p2, LOW);
-
-      delay(300);
-      moveForward();
+      // digitalWrite(m2p1, HIGH);
+      // digitalWrite(m2p2, LOW);
     }
 
-    turnRight() {
+    void turnRight() {
       digitalWrite(m1p1, LOW);
       digitalWrite(m1p2, LOW);
 
       digitalWrite(m2p1, HIGH);
       digitalWrite(m2p2, LOW);
-      delay(300);
+      // delay(300);
     }
 
-    turnLeft() {
-      digitalWrite(motor1pin, HIGH);
-      digitalWrite(motor1pin, LOW);
+    void turnLeft() {
+      digitalWrite(m1p1, HIGH);
+      digitalWrite(m1p2, LOW);
 
-      digitalWrite(motor2pin1,LOW);
-      digitalWrite(motor2pin2,LOW)
-      delay(300);
+      digitalWrite(m2p1,LOW);
+      digitalWrite(m2p2,LOW);
+      // delay(300);
     }
 
 
 
-}
+};
 
 class ColourSensor {
   private:
@@ -74,6 +71,11 @@ class ColourSensor {
       digitalWrite(S1, LOW);
     }
 
+    int percentDiff(int a, int b) {
+      return int((float)abs(a - b) / ((a + b) / 2.0) * 100);
+  }
+
+
 
   public:
     ColourSensor(int s0, int s1, int s2, int s3, int out) {
@@ -87,11 +89,11 @@ class ColourSensor {
     }
 
     ColourSensor() {
-        S0 = 12;
-        S1 = 11;
+        S0 = 8;
+        S1 = 9;
         S2 = 10;
-        S3 = 9;
-        OUT = 8;
+        S3 = 11;
+        OUT = 12;
 
         init();
     }
@@ -117,10 +119,37 @@ class ColourSensor {
       return {r, g, b, a};
     }
 
+    char getColour(int threshold) {
+      std::array<int, 4> data = getColourData();
+      int r = data[0];
+      int g = data[1];
+      int b = data[2];
+
+      // Check if red is dominant
+      if (r <= g && r <= b &&
+          percentDiff(r, g) >= threshold &&
+          percentDiff(r, b) >= threshold) return 'R';
+
+      // Check if green is dominant
+      if (g <= r && g <= b &&
+          percentDiff(g, r) >= threshold &&
+          percentDiff(g, b) >= threshold) return 'G';
+
+      // Check if blue is dominant
+      if (b <= r && b <= g &&
+          percentDiff(b, r) >= threshold &&
+          percentDiff(b, g) >= threshold) return 'B';
+
+      return 'U';
+  }
+
+
+
 
 };
 
 ColourSensor sensor;
+MotorController motor_controller;
 int prev_rgba[4] = {0, 0, 0, 0};
 
 void setup() {
@@ -141,10 +170,10 @@ void printCell(int value) {
 void loop() {
   auto data = sensor.getColourData();
 
-  int r = data[0] / 10;
-  int g = data[1] / 10;
-  int b = data[2] / 10;
-  int a = data[3] / 10;
+  int r = data[0] / 1;
+  int g = data[1] / 1;
+  int b = data[2] / 1;
+  int a = data[3] / 1;
 
   // Serial.print("R: "); Serial.print(r);
   // Serial.print(" G: "); Serial.print(g);
@@ -168,6 +197,8 @@ void loop() {
     maxColour = 'U'; // unknown / tie
   }
 
+  maxColour = sensor.getColour(40);
+
 
   printCell(r); Serial.print(" | ");
   printCell(g); Serial.print(" | ");
@@ -180,11 +211,12 @@ void loop() {
   // printCell(deltaB); Serial.print(" | ");
   // printCell(deltaA); Serial.println();
 
+  // motor_controller.moveForward();
 
   prev_rgba[0] = r;
   prev_rgba[1] = g;
   prev_rgba[2] = b;
   prev_rgba[3] = a;
 
-  delay(500);
+  delay(300);
 }
